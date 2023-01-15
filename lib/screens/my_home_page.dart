@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:dio/dio.dart';
+import 'package:multiplatform_solutions_1/app_platform.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
@@ -15,6 +16,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    textController.text='https://flutter.dev';
     return SafeArea(
         child: Scaffold(
       body: Column(
@@ -45,20 +47,20 @@ class _MyHomePageState extends State<MyHomePage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
+                                /*Text(
                                   getHtmlTitle(snapshot.data!),
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 24,
                                   ),
-                                ),
-                                const Text(
+                                ),*/
+                               /* const Text(
                                   'CORS Header: None',
                                   style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 18,
                                       color: Colors.redAccent),
-                                ),
+                                ),*/
                                 Text(snapshot.data!),
                               ],
                             ),
@@ -111,7 +113,9 @@ class _MyHomePageState extends State<MyHomePage> {
                     )
                   ],
                 ),
-              ))
+              )),
+          Text('APPLICATION RUNNING ON ${AppPlatform.platform.toUpperCase()}',
+            style: TextStyle(fontWeight: FontWeight.bold),)
         ],
       ),
     ));
@@ -126,9 +130,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
 Future<String> getHtmlCode(String text) async {
   try {
-    var response = await Dio().get(text);
+    Dio dio=Dio();
+    var response = await dio.get(text);
     if (response.statusCode == 200) {
-      String htmlToParse = response.data;
+      String htmlToParse = response.headers.toString();
       return htmlToParse;
     } else {
       return 'Не удалось загрузить данные';
@@ -140,6 +145,7 @@ Future<String> getHtmlCode(String text) async {
 
 String getHtmlTitle(String htmlCode) {
   var doc = parse(htmlCode);
+  print(htmlCode);
   String title = doc.getElementsByTagName('title')[0].innerHtml;
   return title;
 }
