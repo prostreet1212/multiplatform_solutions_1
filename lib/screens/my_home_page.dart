@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:dio/dio.dart';
-import 'package:multiplatform_solutions_1/app_platform.dart';
 import 'package:multiplatform_solutions_1/widgets/find_panel.dart';
-
-
+import 'package:multiplatform_solutions_1/widgets/html_view.dart';
+import '../app_platform.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
@@ -15,7 +14,6 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   Future<String> htmlText = Future.error('');
-
 
   String getHtmlTitle(String htmlCode) {
     var doc = parse(htmlCode);
@@ -38,77 +36,35 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  void load(String s){
-    htmlText = getHtmlCode(s);
+  void load(String s) {
+    setState(() {
+      htmlText = getHtmlCode(s);
+    });
   }
-
-
 
   @override
   Widget build(BuildContext context) {
-    print('aaaaaaaa');
-    //textController.text = 'http://kdrc.ru';
     return SafeArea(
         child: Scaffold(
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(
-            flex: 12,
-            child: FutureBuilder(
-              initialData: '',
-              future: htmlText,
-              builder: (context, snapshot) {
-                switch (snapshot.connectionState) {
-                  case ConnectionState.waiting:
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  case ConnectionState.done:
-                    if (snapshot.hasError) {
-                      return Center(
-                        child: Text(snapshot.error as String),
-                      );
-                    } else {
-                      return Padding(
-                          padding:
-                              const EdgeInsets.only(top: 8, right: 8, left: 8),
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.vertical,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  getHtmlTitle(snapshot.data!.trim()),
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 24,
-                                  ),
-                                ),
-                                const Text(
-                                  'CORS Header: None',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18,
-                                      color: Colors.redAccent),
-                                ),
-                                Text(snapshot.data!),
-                              ],
-                            ),
-                          ));
-                    }
-                  default:
-                    return Container();
-                }
-              },
-            ),
+          HtmlView(
+            htmlText: htmlText,
+            getHtmlTitle: getHtmlTitle,
           ),
           //Divider(thickness: 2,color: Colors.black45,),
           Container(color: Colors.black45, height: 1),
           FindPanel(load: load),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: Text(
+              'APPLICATION RUNNING ON ${AppPlatform.platform.toUpperCase()}',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          )
         ],
       ),
     ));
   }
-
-
 }
